@@ -4,6 +4,7 @@ import os
 import numpy as np
 
 from keras import backend as K
+from keras.layers import BatchNormalization
 from tensorflow.python.keras.applications import ResNet50
 from tensorflow.python.keras.models import Sequential
 
@@ -57,6 +58,7 @@ np.save("..\\arrays\\u2AllImages.npy",img_data)
 
 my_new_model = Sequential()
 my_new_model.add(ResNet50(include_top=False, pooling='avg', weights=resnet_weights_path))
+# my_new_model.add(BatchNormalization())
 
 
 # Say not to train first layer (ResNet) model. It is already trained

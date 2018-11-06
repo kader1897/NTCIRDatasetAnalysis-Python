@@ -7,6 +7,8 @@ from keras.utils import np_utils
 from keras.models import model_from_json
 from keras.models import load_model
 import h5py
+from sklearn.feature_extraction.text import CountVectorizer
+from collections import Counter
 
 K.set_image_dim_ordering('tf')
 
@@ -173,3 +175,39 @@ def loadCNNModelFromJson(fileName, weightsFileName):
 
     # model.save('model.hdf5')
     # loaded_model = load_model('model.hdf5')
+
+
+def wordToVec(data):
+    vec = CountVectorizer(tokenizer=tokenize)
+    return vec.fit_transform(data).toarray()
+
+
+def tokenize(txt):
+    return txt.split(",")
+
+
+def clusterAssignment(n_clusters, kmeans_result, activityList, activityCounter):
+    resultList = [None] * activityList.__len__()
+    for i in range(n_clusters):
+        tempList = np.where(kmeans_result.labels_ == i)[0]
+        activities = Counter([activityList[ind] for ind in tempList])
+        for act in activities:
+            if act is not None:
+                activities[act] /= activityCounter[act]
+            else:
+                activities[act] = 0
+        activity = activities.most_common()[0]
+        for index in tempList:
+            resultList[index] = activity[0]
+    return resultList
+
+
+def clusterAssignmentIgnoreFreq(n_clusters, kmeans_result, activityList):
+    resultList = [None] * activityList.__len__()
+    for i in range(n_clusters):
+        tempList = np.where(kmeans_result.labels_ == i)[0]
+        activities = Counter([activityList[ind] for ind in tempList])
+        activity = activities.most_common()[0]
+        for index in tempList:
+            resultList[index] = activity[0]
+    return resultList
